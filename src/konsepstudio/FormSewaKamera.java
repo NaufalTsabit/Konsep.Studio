@@ -16,20 +16,22 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
  *
- * @author Asus
+ * @author Athma Farhan
  */
 
 public class FormSewaKamera extends javax.swing.JFrame {
 private DefaultTableModel tabmode;
+Connection con = null;
 ArrayList<CustomerKamera> ListCustKamera = new ArrayList<>();//
-String[] title = {
-        "No Trans","Tanggal","Nama","Jaminan","Nomor HP","NoKamera","Merk","Jenis","Ket","Jumlah Hari","Tgl Kembali","Hari Kembali","Harga"};    
+String[] title = {"No Trans","Tanggal","Nama","Jaminan","Nomor HP","NoKamera","Merk","Jenis","Ket","Jumlah Sewa","Tgl Sewa","Jumlah Hari","Tgl Kembali","Hari Kembali","Harga"};    
 int index = -1;//
 private final Hashtable<String, String[]> subItemsJenis = new Hashtable<>();
 ArrayList<ArrayList<Kamera>> arrKamera = new ArrayList<>();//
@@ -59,13 +61,16 @@ Kamera GoPro1 ;
         
     }
     
+    
     public void connectDatabase(){
-        Object []baris = {"No Trans","Tanggal","Nama","Jaminan","Nomor HP","NoKamera","Merk","Jenis","Ket","Jumlah Hari","Tgl Kembali","Hari Kembali","Harga"};
+        Object []baris = {"No Trans","Tanggal","Nama","Jaminan","Nomor HP","NoKamera","Merk","Jenis","Ket","Jumlah Sewa","Tgl Sewa","Jumlah Hari","Tgl Kembali","Hari Kembali","Harga"};
         tabmode = new DefaultTableModel();
+        
         tblKamera.setModel(tabmode);
         String sql = "select * from custkamera";
         try {
-            Connection con = new Koneksi().getCon();
+            
+            con = new Koneksi().getCon();
             Statement stmt = con.createStatement();
             ResultSet customerKamera = stmt.executeQuery(sql);
             while (customerKamera.next() == true){
@@ -80,6 +85,8 @@ Kamera GoPro1 ;
                 customerKamera.getString("jenis"),
                 customerKamera.getString("ket"),
                 customerKamera.getString("jmlhari"),
+                customerKamera.getString("tglsewa"),
+                customerKamera.getString("harisewa"),
                 customerKamera.getString("tglkembali"),
                 customerKamera.getString("harikembali"),
                 customerKamera.getString("harga")));
@@ -88,17 +95,13 @@ Kamera GoPro1 ;
                 //String[] data = {notrans, tanggal, nama, jaminan, nohp, nokamera, jenis, ket, jmlhari, tglkembali, harikembali, harga};
                    tabmode.addRow(baris);
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,"Error", "Informasi",
-             JOptionPane.INFORMATION_MESSAGE);
-        } catch (NullPointerException e) {
+        } catch (SQLException | NullPointerException e) {
             JOptionPane.showMessageDialog(this,"Error", "Informasi",
              JOptionPane.INFORMATION_MESSAGE);
         }
     }
-    
     public void updateTable() {
-        Object[][] data = new Object[ListCustKamera.size()][13];
+        Object[][] data = new Object[ListCustKamera.size()][15];
         int x = 0;
         for (CustomerKamera CK:ListCustKamera){
             data[x][0] = CK.getNoTrans();
@@ -111,9 +114,11 @@ Kamera GoPro1 ;
             data[x][7] = CK.getJenis();
             data[x][8] = CK.getKet();
             data[x][9] = CK.getJmlHari();
-            data[x][10] = CK.getTglKembali();
-            data[x][11] = CK.getHariKembali();
-            data[x][12] = CK.getHarga();
+            data[x][10] = CK.getTglSewa();
+            data[x][11] = CK.getHariSewa();
+            data[x][12] = CK.getTglKembali();
+            data[x][13] = CK.getHariKembali();
+            data[x][14] = CK.getHarga();
             ++x;
         }
         tblKamera.setModel(new DefaultTableModel(data, title));
@@ -185,12 +190,14 @@ Kamera GoPro1 ;
         java.util.Date DateTglBlnThn = null;
         
         try {
+            DateTglBlnThn = sdfTglBlnThn.parse(CK.getTglSewa());
             DateTglBlnThn = sdfTglBlnThn.parse(CK.getTglKembali());
         } catch (ParseException ex) {
             JOptionPane.showMessageDialog(this,"Error", "Informasi",
              JOptionPane.INFORMATION_MESSAGE);
         }
         //yoii = yoi.parse("3000/12/12");
+        datepickerTanggalSewa.setDate(DateTglBlnThn);
         datepickerTanggalKembali.setDate(DateTglBlnThn);
         //Date DPck = Date.parse(s)
         //datepickerTglKembali.set
@@ -240,6 +247,8 @@ Kamera GoPro1 ;
         txtJumlahHari = new javax.swing.JTextField();
         txtNoTrans = new javax.swing.JTextField();
         jButton10 = new javax.swing.JButton();
+        datepickerTanggalSewa = new org.jdesktop.swingx.JXDatePicker();
+        lblTglSewa = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -384,68 +393,73 @@ Kamera GoPro1 ;
             }
         });
 
+        lblTglSewa.setText("Tanggal Sewa");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addGap(28, 28, 28)
-                                    .addComponent(jButton2)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addComponent(jLabel8))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addComponent(jLabel9)))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(txtHarga, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jButton4)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(jButton5))
-                                .addComponent(txtKeterangan, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(datepickerTanggalKembali, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel1)
-                                    .addGap(67, 67, 67)
-                                    .addComponent(txtNoTrans, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel2)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel4)
-                                        .addComponent(jLabel5)
-                                        .addComponent(jLabel6))
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(txtJaminan, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(txtNomorHP, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(txtNomorKamera, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                            .addComponent(cbMerk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(cbJenis, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel7)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtJumlahHari, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel10)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(67, 67, 67)
+                                .addComponent(txtNoTrans, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel6))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtJaminan, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtNomorHP, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtNomorKamera, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(cbMerk, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(cbJenis, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtJumlahHari, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(28, 28, 28)
+                                .addComponent(jButton2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel8))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel9))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel10))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(lblTglSewa)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(datepickerTanggalSewa, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtHarga, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jButton4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButton5))
+                            .addComponent(txtKeterangan, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                            .addComponent(datepickerTanggalKembali, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -511,8 +525,12 @@ Kamera GoPro1 ;
                             .addComponent(jLabel9))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel10)
-                            .addComponent(datepickerTanggalKembali, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(datepickerTanggalSewa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblTglSewa))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(datepickerTanggalKembali, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel10))))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -586,7 +604,9 @@ int field1 = 0;
         int    field9 = 0;
         String field10 = null;
         String field11 = null;
-        int    field12 = 0;
+        String field12 = null;
+        String field13 = null;
+        int    field14 = 0;
         
         SimpleDateFormat sdfTglBlnThn = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat sdfHari = new SimpleDateFormat("EEE", Locale.US);
@@ -594,9 +614,11 @@ int field1 = 0;
         try {
             field1 = Integer.parseInt(txtNoTrans.getText());
             field9 = Integer.parseInt(txtJumlahHari.getText());
-            field10 = sdfTglBlnThn.format(datepickerTanggalKembali.getDate());
-            field11 = sdfHari.format(datepickerTanggalKembali.getDate());
-            field12 = Integer.parseInt(txtHarga.getText());
+            field10 = sdfTglBlnThn.format(datepickerTanggalSewa.getDate());
+            field11 = sdfHari.format(datepickerTanggalSewa.getDate());
+            field12 = sdfTglBlnThn.format(datepickerTanggalKembali.getDate());
+            field13 = sdfHari.format(datepickerTanggalKembali.getDate());
+            field14 = Integer.parseInt(txtHarga.getText());
                 
         } catch (NumberFormatException | NullPointerException e) {
             JOptionPane.showMessageDialog(this,"Data yang Anda Masukkan Salah", "Informasi",
@@ -618,6 +640,8 @@ int field1 = 0;
         
         newCK.setHarga(txtHarga.getText());
         try {
+            newCK.setTglKembali(sdfTglBlnThn.format(datepickerTanggalSewa.getDate()));
+            newCK.setHariKembali(sdfHari.format(datepickerTanggalSewa.getDate()));
             newCK.setTglKembali(sdfTglBlnThn.format(datepickerTanggalKembali.getDate()));
             newCK.setHariKembali(sdfHari.format(datepickerTanggalKembali.getDate()));
             this.ListCustKamera.add(newCK);
@@ -630,8 +654,8 @@ int field1 = 0;
             Connection con = new Koneksi().getCon();
             PreparedStatement myPreparedStatement = null;
             String sqlinput = "INSERT INTO `custkamera`"
-                        + "(`notrans`, `tanggal`, `nama`, `jaminan`, `nohp`, `nokamera`,`merk`, `jenis`, `ket`, `jmlhari`, `tglkembali`, `harikembali`, `harga`)"
-                        + " VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        + "(`notrans`, `tanggal`, `nama`, `jaminan`, `nohp`, `nokamera`,`merk`, `jenis`, `ket`, `jmlhari`, `tglsewa`, `harisewa`,`tglkembali`, `harikembali`, `harga`)"
+                        + " VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             myPreparedStatement = con.prepareStatement(sqlinput);
             myPreparedStatement.setInt(1, field1);
             myPreparedStatement.setString(2, field2);
@@ -644,7 +668,9 @@ int field1 = 0;
             myPreparedStatement.setInt(9, field9);
             myPreparedStatement.setString(10, field10);
             myPreparedStatement.setString(11, field11);
-            myPreparedStatement.setInt(12, field12);
+            myPreparedStatement.setString(12, field12);
+            myPreparedStatement.setString(13, field13);
+            myPreparedStatement.setInt(14, field14);
             myPreparedStatement.executeUpdate();
             InputBerhasil = true;
          
@@ -666,6 +692,7 @@ int field1 = 0;
             txtJumlahHari.setText("");
             txtHarga.setText("");
             txtKeterangan.setText("");
+            datepickerTanggalSewa.setDate(null);
             datepickerTanggalKembali.setDate(null);
          
        //myPreparedStatement.close();
@@ -745,17 +772,21 @@ int field1 = 0;
         int    field8 = 0;
         String field9 = null;
         String field10 = null;
-        int    field11 = 0;
-        int    field12 = Integer.parseInt(txtNoTrans.getText());
+        String field11 = null;
+        String field12 = null;
+        int    field13 = 0;
+        int    field14 = Integer.parseInt(txtNoTrans.getText());
         
         SimpleDateFormat tglblnthnKembali = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat hariKembali = new SimpleDateFormat("EEE", Locale.US);
             
         try {
             field8 = Integer.parseInt(txtJumlahHari.getText());
-            field9 = tglblnthnKembali.format(datepickerTanggalKembali.getDate());
-            field10 = hariKembali.format(datepickerTanggalKembali.getDate());
-            field11 = Integer.parseInt(txtHarga.getText());
+            field9 = tglblnthnKembali.format(datepickerTanggalSewa.getDate());
+            field10 = hariKembali.format(datepickerTanggalSewa.getDate());
+            field11 = tglblnthnKembali.format(datepickerTanggalKembali.getDate());
+            field12 = hariKembali.format(datepickerTanggalKembali.getDate());
+            field14 = Integer.parseInt(txtHarga.getText());
                 
         } catch (NumberFormatException | NullPointerException e) {
             JOptionPane.showMessageDialog(this,"Data yang Anda Masukkan Salah", "Informasi",
@@ -777,6 +808,8 @@ int field1 = 0;
         newCK.setHarga(txtHarga.getText());
         boolean InputBerhasil = false;
         try {
+            newCK.setTglKembali(tglblnthnKembali.format(datepickerTanggalSewa.getDate()));
+            newCK.setHariKembali(hariKembali.format(datepickerTanggalSewa.getDate()));
             newCK.setTglKembali(tglblnthnKembali.format(datepickerTanggalKembali.getDate()));
             newCK.setHariKembali(hariKembali.format(datepickerTanggalKembali.getDate()));
             this.ListCustKamera.set(index, newCK);
@@ -784,7 +817,7 @@ int field1 = 0;
             Connection con = new Koneksi().getCon();
             PreparedStatement myPreparedStatement = null;
             String sqlupdate = "UPDATE `custkamera` SET "
-            + "`nama`=?,`jaminan`=?,`nohp`=?,`nokamera`=?,`merk`=?,`jenis`=?,`ket`=?,`jmlhari`=?,`tglkembali`=?,`harikembali`=?,`harga`=? "
+            + "`nama`=?,`jaminan`=?,`nohp`=?,`nokamera`=?,`merk`=?,`jenis`=?,`ket`=?,`jmlhari`=?,`tglsewa`=?,`harisewa`=?,`tglkembali`=?,`harikembali`=?,`harga`=? "
                     + "WHERE `notrans`=?";
 
             myPreparedStatement = con.prepareStatement(sqlupdate);
@@ -798,8 +831,10 @@ int field1 = 0;
             myPreparedStatement.setInt(8, field8);
             myPreparedStatement.setString(9, field9);
             myPreparedStatement.setString(10, field10);
-            myPreparedStatement.setInt(11, field11);
-            myPreparedStatement.setInt(12, field12);
+            myPreparedStatement.setString(11, field11);
+            myPreparedStatement.setString(12, field12);
+            myPreparedStatement.setInt(13, field13);
+            myPreparedStatement.setInt(14, field14);
             myPreparedStatement.executeUpdate();
             InputBerhasil = true;
             }
@@ -834,6 +869,7 @@ int field1 = 0;
         txtJumlahHari.setText("");
         txtHarga.setText("");
         txtKeterangan.setText("");
+        datepickerTanggalSewa.setDate(null);
         datepickerTanggalKembali.setDate(null);
     }//GEN-LAST:event_jButton11ActionPerformed
 
@@ -890,10 +926,15 @@ int field1 = 0;
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
+    try {
+        con.close();
         this.dispose();
         java.awt.EventQueue.invokeLater(() -> {
             new Menu().setVisible(true);
         });
+    } catch (SQLException ex) {
+
+    }
     }//GEN-LAST:event_jButton10ActionPerformed
 
     /**
@@ -935,6 +976,7 @@ int field1 = 0;
     private javax.swing.JComboBox<String> cbJenis;
     private javax.swing.JComboBox<String> cbMerk;
     private org.jdesktop.swingx.JXDatePicker datepickerTanggalKembali;
+    private org.jdesktop.swingx.JXDatePicker datepickerTanggalSewa;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -959,6 +1001,7 @@ int field1 = 0;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblTglSewa;
     private javax.swing.JTable tblKamera;
     private javax.swing.JTextField txtHarga;
     private javax.swing.JTextField txtJaminan;

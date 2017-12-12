@@ -7,6 +7,8 @@ package konsepstudio;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.util.Arrays;
@@ -17,13 +19,14 @@ import javax.swing.JOptionPane;
  *
  * @author Athma Farhan
  */
-public class SignIn extends javax.swing.JFrame {
+public final class SignIn extends javax.swing.JFrame {
 
     /**
      * Creates new form SignIn
      */
     public SignIn() {
         initComponents();
+        checkEnter();
         //txtusername.requestFocus();
         
     }
@@ -42,6 +45,19 @@ public class SignIn extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(this, "Kombinasi Username dan Password salah");
         }
+    }
+    
+    public void checkEnter(){
+        txtpassword.addKeyListener(new KeyAdapter()
+    {
+      public void keyPressed(KeyEvent e)
+      {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER)
+        {
+          signIn();
+        }
+      }
+    });
     }
 
     /**
@@ -113,6 +129,11 @@ public class SignIn extends javax.swing.JFrame {
         txtpassword.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtpasswordActionPerformed(evt);
+            }
+        });
+        txtpassword.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtpasswordKeyPressed(evt);
             }
         });
 
@@ -267,6 +288,10 @@ public class SignIn extends javax.swing.JFrame {
     private void txtpasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtpasswordActionPerformed
         requestFocus();
     }//GEN-LAST:event_txtpasswordActionPerformed
+
+    private void txtpasswordKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtpasswordKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtpasswordKeyPressed
 
     /**
      * @param args the command line arguments

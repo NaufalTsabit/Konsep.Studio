@@ -34,6 +34,7 @@ public class FormSewaStudio extends javax.swing.JFrame {
     
     private DefaultTableModel tabmode;
     ArrayList<CustomerStudio> listCustStudio = new ArrayList<>();//
+    Connection con;
     String HariSewa = null;
     Date DateWaktu = null;
     Date Sembilan = null;
@@ -67,7 +68,8 @@ public class FormSewaStudio extends javax.swing.JFrame {
         tblStudio.setModel(tabmode);
         String sql = "select * from custstudio";
         try {
-            Connection con = new Koneksi().getCon();
+            
+            con = new Koneksi().getCon();
             Statement stmt = con.createStatement();
             ResultSet customerStudio = stmt.executeQuery(sql);
             while (customerStudio.next() == true){
@@ -89,10 +91,8 @@ public class FormSewaStudio extends javax.swing.JFrame {
                 //String[] data = {notrans, tanggal, nama, jaminan, nohp, nokamera, jenis, ket, jmlhari, tglkembali, harikembali, harga};
                    tabmode.addRow(baris);
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,"Error", "Informasi",
-             JOptionPane.INFORMATION_MESSAGE);
-        } catch (NullPointerException e) {
+            con.close();
+        } catch (SQLException | NullPointerException e) {
             JOptionPane.showMessageDialog(this,"Error", "Informasi",
              JOptionPane.INFORMATION_MESSAGE);
         }

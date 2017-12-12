@@ -7,7 +7,7 @@ package konsepstudio;
 
 /**
  *
- * @author Asus
+ * @author Athma Farhan
  */
 public class CustomerKamera {
     private int NoTrans;
@@ -20,6 +20,8 @@ public class CustomerKamera {
     private String Jenis;
     private String Ket;
     private String JmlHari;
+    private String TglSewa;
+    private String HariSewa;
     private String TglKembali;
     private String HariKembali;
     private String Harga;
@@ -27,7 +29,7 @@ public class CustomerKamera {
     public CustomerKamera() {
     }
 
-    public CustomerKamera(int NoTrans, String Tanggal, String Nama, String Jaminan, String NoHP, String NoKamera, String Merk, String Jenis, String Ket, String JmlHari, String TglKembali, String HariKembali, String Harga) {
+    public CustomerKamera(int NoTrans, String Tanggal, String Nama, String Jaminan, String NoHP, String NoKamera, String Merk, String Jenis, String Ket, String JmlHari, String TglSewa, String HariSewa, String TglKembali, String HariKembali, String Harga) {
         this.NoTrans = NoTrans;
         this.Tanggal = Tanggal;
         this.Nama = Nama;
@@ -38,6 +40,8 @@ public class CustomerKamera {
         this.Jenis = Jenis;
         this.Ket = Ket;
         this.JmlHari = JmlHari;
+        this.TglSewa = TglSewa;
+        this.HariSewa = HariSewa;
         this.TglKembali = TglKembali;
         this.HariKembali = HariKembali;
         this.Harga = Harga;
@@ -147,6 +151,22 @@ public class CustomerKamera {
 
     public void setMerk(String Merk) {
         this.Merk = Merk;
+    }
+
+    public String getTglSewa() {
+        return TglSewa;
+    }
+
+    public void setTglSewa(String TglSewa) {
+        this.TglSewa = TglSewa;
+    }
+
+    public String getHariSewa() {
+        return HariSewa;
+    }
+
+    public void setHariSewa(String HariSewa) {
+        this.HariSewa = HariSewa;
     }
     
     

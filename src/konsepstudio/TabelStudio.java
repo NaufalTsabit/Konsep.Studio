@@ -32,6 +32,7 @@ public final class TabelStudio extends javax.swing.JFrame {
   private DefaultTableModel tabmode;
   private TableRowSorter<TableModel> rowSorter;
   ArrayList<CustomerStudio> listCustStudio = new ArrayList<>();//
+  Connection con;
     /**
      * 
      * Creates new form HalAdmin
@@ -86,7 +87,8 @@ public final class TabelStudio extends javax.swing.JFrame {
         tblStudio.setModel(tabmode);
         String sql = "select * from custstudio";
         try {
-            Connection con = new Koneksi().getCon();
+            
+            con = new Koneksi().getCon();
             Statement stmt = con.createStatement();
             ResultSet customerStudio = stmt.executeQuery(sql);
             while (customerStudio.next() == true){
@@ -108,10 +110,8 @@ public final class TabelStudio extends javax.swing.JFrame {
                 //String[] data = {notrans, tanggal, nama, jaminan, nohp, nokamera, jenis, ket, jmlhari, tglkembali, harikembali, harga};
                    tabmode.addRow(baris);
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,"Error", "Informasi",
-             JOptionPane.INFORMATION_MESSAGE);
-        } catch (NullPointerException e) {
+            con.close();
+        } catch (SQLException | NullPointerException e) {
             JOptionPane.showMessageDialog(this,"Error", "Informasi",
              JOptionPane.INFORMATION_MESSAGE);
         }
@@ -222,6 +222,11 @@ public final class TabelStudio extends javax.swing.JFrame {
         jLabel2.setText("Search");
 
         txtSearch.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearchActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -263,6 +268,10 @@ public final class TabelStudio extends javax.swing.JFrame {
             new Menu().setVisible(true);
         });
     }//GEN-LAST:event_jButton1MouseClicked
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSearchActionPerformed
 
     /**
      * @param args the command line arguments

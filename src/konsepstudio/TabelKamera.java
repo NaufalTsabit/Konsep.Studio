@@ -7,7 +7,7 @@ package konsepstudio;
 
 /**
  *
- * @author Asus
+ * @author Athma Farhan
  */
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
@@ -40,7 +40,7 @@ public final class TabelKamera extends javax.swing.JFrame {
     
     public TabelKamera() {
         initComponents();//
-        showTable();//
+        connectDatabase();
         updateTable();//
         searchTabel();//
     }
@@ -49,13 +49,15 @@ public final class TabelKamera extends javax.swing.JFrame {
         return tabmode;
     }
     
-    public void showTable(){
-        Object []baris = {"No Trans","Tanggal","Nama","Jaminan","Nomor HP","NoKamera","Merk","Jenis","Ket","Jumlah Hari","Tgl Kembali","Hari Kembali","Harga"};
+    public void connectDatabase(){
+        Object []baris = {"No Trans","Tanggal","Nama","Jaminan","Nomor HP","NoKamera","Merk","Jenis","Ket","Jumlah Sewa","Tgl Sewa","Jumlah Hari","Tgl Kembali","Hari Kembali","Harga"};
         tabmode = new DefaultTableModel();
+        Connection con = null;
         tblKamera.setModel(tabmode);
         String sql = "select * from custkamera";
         try {
-            Connection con = new Koneksi().getCon();
+            
+            con = new Koneksi().getCon();
             Statement stmt = con.createStatement();
             ResultSet customerKamera = stmt.executeQuery(sql);
             while (customerKamera.next() == true){
@@ -70,6 +72,8 @@ public final class TabelKamera extends javax.swing.JFrame {
                 customerKamera.getString("jenis"),
                 customerKamera.getString("ket"),
                 customerKamera.getString("jmlhari"),
+                customerKamera.getString("tglsewa"),
+                customerKamera.getString("harisewa"),
                 customerKamera.getString("tglkembali"),
                 customerKamera.getString("harikembali"),
                 customerKamera.getString("harga")));
@@ -78,16 +82,16 @@ public final class TabelKamera extends javax.swing.JFrame {
                 //String[] data = {notrans, tanggal, nama, jaminan, nohp, nokamera, jenis, ket, jmlhari, tglkembali, harikembali, harga};
                    tabmode.addRow(baris);
             }
-        } catch (SQLException e) {
+            con.close();
+        } catch (SQLException | NullPointerException e) {
+            JOptionPane.showMessageDialog(this,"Error", "Informasi",
+             JOptionPane.INFORMATION_MESSAGE);
             e.printStackTrace();
-        } catch (NullPointerException e) {
-            
         }
-        
     }
     
     public void updateTable() {
-        Object[][] data = new Object[ListCustKamera.size()][13];
+        Object[][] data = new Object[ListCustKamera.size()][15];
         int x = 0;
         for (CustomerKamera CK:ListCustKamera){
             data[x][0] = CK.getNoTrans();
@@ -100,14 +104,14 @@ public final class TabelKamera extends javax.swing.JFrame {
             data[x][7] = CK.getJenis();
             data[x][8] = CK.getKet();
             data[x][9] = CK.getJmlHari();
-            data[x][10] = CK.getTglKembali();
-            data[x][11] = CK.getHariKembali();
-            data[x][12] = CK.getHarga();
+            data[x][10] = CK.getTglSewa();
+            data[x][11] = CK.getHariSewa();
+            data[x][12] = CK.getTglKembali();
+            data[x][13] = CK.getHariKembali();
+            data[x][14] = CK.getHarga();
             ++x;
         }
-        //tabmode = new DefaultTableModel(data, title);
         tblKamera.setModel(new DefaultTableModel(data, title));
-             
     }
     
     public void searchTabel() {

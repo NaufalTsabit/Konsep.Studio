@@ -7,7 +7,7 @@ package konsepstudio;
 
 /**
  *
- * @author Asus
+ * @author Athma Farhan
  */
 public class Kamera {
     private final String MerkKamera;
